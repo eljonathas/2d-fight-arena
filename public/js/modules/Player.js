@@ -20,7 +20,7 @@ export class Player {
     this.isJumping = false;
     this.isHurt = false;
     this.grounded = true;
-    this.jumpForce = -12;
+    this.jumpForce = -16;
     this.gravity = 0.6;
     this.speed = 5;
     const stats = this.getCharacterStats(this.character);
@@ -73,13 +73,13 @@ export class Player {
     this.sprite.scale.set(2, 2);
     this.attackBox = new PIXI.Graphics();
     this.attackBox.beginFill(0xff0000, 0.0);
-    this.attackBox.drawRect(0, -80, 80, 80);
+    this.attackBox.drawRect(0, -90, 100, 90);
     this.attackBox.endFill();
     this.attackBox.position.set(40, 0);
     this.attackBox.visible = false;
     this.hitbox = new PIXI.Graphics();
     this.hitbox.beginFill(0x00ff00, 0.0);
-    this.hitbox.drawRect(-30, -100, 60, 100);
+    this.hitbox.drawRect(-40, -110, 80, 110);
     this.hitbox.endFill();
     this.container.addChild(this.sprite, this.attackBox, this.hitbox);
     this.createPlayerUI();
@@ -335,7 +335,6 @@ export class Player {
 
   checkPlatformCollision(platform) {
     const playerBottom = this.position.y + this.hitbox.height / 2;
-    const playerTop = this.position.y - this.hitbox.height / 2;
     const playerLeft = this.position.x - this.hitbox.width / 2;
     const playerRight = this.position.x + this.hitbox.width / 2;
     const platformTop = platform.y;
@@ -353,17 +352,19 @@ export class Player {
 
   checkAttackCollision(player) {
     const attackBox = {
-      x: this.position.x + (this.direction === 1 ? 30 : -110),
-      y: this.position.y - 80,
-      width: 80,
-      height: 80,
+      x: this.position.x + (this.direction === 1 ? 40 : -140),
+      y: this.position.y - 90,
+      width: 100,
+      height: 90,
     };
+
     const playerHitbox = {
-      x: player.position.x - 30,
-      y: player.position.y - 100,
-      width: 60,
-      height: 100,
+      x: player.position.x - 40,
+      y: player.position.y - 110,
+      width: 80,
+      height: 110,
     };
+
     return (
       attackBox.x < playerHitbox.x + playerHitbox.width &&
       attackBox.x + attackBox.width > playerHitbox.x &&

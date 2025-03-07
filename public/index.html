@@ -274,8 +274,11 @@
       <canvas id="game-canvas" class="w-full h-full"></canvas>
 
       <!-- HUD -->
-      <div id="game-hud" class="absolute inset-x-0 top-0 p-4 hidden">
-        <div class="flex justify-between items-center">
+      <div
+        id="game-hud"
+        class="absolute inset-x-0 top-0 p-4 hidden justify-between"
+      >
+        <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2">
             <div class="w-48 h-6 bg-gray-800 rounded-full overflow-hidden">
               <div
@@ -308,7 +311,7 @@
         </div>
 
         <!-- Attack Cooldown Indicators -->
-        <div class="absolute right-4 bottom-4 flex space-x-3">
+        <div class="flex space-x-3">
           <div class="attack-cooldown-container">
             <div
               id="attack-cooldown-1"
