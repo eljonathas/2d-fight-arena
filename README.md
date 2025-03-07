@@ -1,10 +1,10 @@
-# Sticker Fighter
+# 2D Fight Arena
 
 Um jogo de luta 2D multiplayer em tempo real, inspirado no estilo de Brawlhalla, utilizando WebSocket para comunicação em tempo real e PixiJS para renderização gráfica.
 
 ## Visão Geral
 
-Sticker Fighter é um jogo multiplayer onde jogadores controlam personagens samurais em uma arena 2D. Os jogadores podem se movimentar, pular e atacar para derrotar seus oponentes. O jogo suporta múltiplos jogadores em tempo real através de WebSockets.
+2D Fight Arena é um jogo multiplayer onde jogadores controlam personagens samurais em uma arena 2D. Os jogadores podem se movimentar, pular e atacar para derrotar seus oponentes. O jogo suporta múltiplos jogadores em tempo real através de WebSockets.
 
 ## Características
 
@@ -31,8 +31,8 @@ Sticker Fighter é um jogo multiplayer onde jogadores controlam personagens samu
 1. Clone o repositório:
 
    ```
-   git clone https://github.com/seu-usuario/sticker-fighter.git
-   cd sticker-fighter
+   git clone https://github.com/eljonathas/2d-fight-arena.git
+   cd 2d-fight-arena
    ```
 
 2. Instale as dependências:
@@ -81,7 +81,7 @@ Sticker Fighter é um jogo multiplayer onde jogadores controlam personagens samu
 ## Estrutura do Projeto
 
 ```
-sticker-fighter/
+2d-fight-arena/
 ├── public/                # Arquivos estáticos
 │   ├── assets/            # Recursos do jogo
 │   │   ├── audio/         # Efeitos sonoros (simulados)
@@ -107,7 +107,7 @@ sticker-fighter/
 ## Desenvolvimento
 
 - **Desenho e estilo dos personagens**: Utilizando spritesheets existentes
-- **Mapa**s: Fundos pré-existentes com plataformas posicionadas estrategicamente
+- **Mapas**: Fundos pré-existentes com plataformas posicionadas estratégicamente
 - **Comunicação em tempo real**: Implementada com WebSockets para sincronizar o estado do jogo entre jogadores
 
 ## Créditos
@@ -117,3 +117,4 @@ Os assets (sprites e backgrounds) utilizados são para fins de demonstração e/
 ## Licença
 
 Este projeto é de código aberto e está disponível sob a licença MIT.
+
