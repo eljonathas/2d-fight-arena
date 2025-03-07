@@ -199,19 +199,55 @@ function handleMessage(ws, data) {
 
     case "hit":
       if (!player.room) return;
+
       const targetWs = getPlayerWs(data.targetId);
       if (targetWs) {
         const targetPlayer = players.get(targetWs);
         if (targetPlayer) {
+          // Calcular novo valor de saúde
+          const prevHealth = targetPlayer.health;
           targetPlayer.health = Math.max(0, targetPlayer.health - data.damage);
-          if (targetPlayer.health === 0 && !targetPlayer.isDead) {
+
+          // Verificar se o jogador morreu
+          const justDied = prevHealth > 0 && targetPlayer.health === 0;
+          if (justDied) {
             targetPlayer.isDead = true;
             player.score += 1;
-            const hitRoom = rooms.get(player.room);
-            if (hitRoom) {
-              hitRoom.players.forEach((p) => {
+          }
+
+          // Notificar o jogador alvo sobre o hit
+          targetWs.send(
+            JSON.stringify({
+              type: "hit",
+              damage: data.damage,
+              attackerId: data.attackerId || player.id,
+              health: targetPlayer.health,
+            })
+          );
+
+          // Notificar outros jogadores sobre o hit para exibir efeitos visuais
+          const hitRoom = rooms.get(player.room);
+          if (hitRoom) {
+            hitRoom.players.forEach((p) => {
+              // Não enviar novamente para o alvo, pois já recebeu acima
+              if (p.id !== targetPlayer.id) {
+                const otherWs = getPlayerWs(p.id);
+                if (otherWs) {
+                  otherWs.send(
+                    JSON.stringify({
+                      type: "playerUpdate",
+                      id: targetPlayer.id,
+                      health: targetPlayer.health,
+                      state: targetPlayer.health === 0 ? "dead" : "hurt",
+                    })
+                  );
+                }
+              }
+
+              // Enviar a mensagem de morte se necessário
+              if (justDied) {
                 const playerWs = getPlayerWs(p.id);
-                if (playerWs)
+                if (playerWs) {
                   playerWs.send(
                     JSON.stringify({
                       type: "playerDefeated",
@@ -223,7 +259,12 @@ function handleMessage(ws, data) {
                       })),
                     })
                   );
-              });
+                }
+              }
+            });
+
+            // Programar respawn após a morte
+            if (justDied) {
               setTimeout(() => {
                 if (players.has(targetWs) && targetPlayer.isDead) {
                   targetPlayer.health = 100;
@@ -234,6 +275,7 @@ function handleMessage(ws, data) {
                   targetPlayer.velocity = { x: 0, y: 0 };
                   targetPlayer.state = "idle";
                   targetPlayer.isDead = false;
+
                   // Enviar mensagem de respawn para o jogador que morreu
                   targetWs.send(
                     JSON.stringify({
@@ -243,6 +285,7 @@ function handleMessage(ws, data) {
                       state: "idle",
                     })
                   );
+
                   // Enviar atualização para todos os outros jogadores
                   hitRoom.players.forEach((p) => {
                     const otherPlayerWs = getPlayerWs(p.id);
@@ -265,14 +308,6 @@ function handleMessage(ws, data) {
               }, 3000);
             }
           }
-          targetWs.send(
-            JSON.stringify({
-              type: "hit",
-              damage: data.damage,
-              health: targetPlayer.health,
-              attackerId: data.attackerId || player.id,
-            })
-          );
         }
       }
       break;

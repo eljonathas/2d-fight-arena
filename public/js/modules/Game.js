@@ -175,14 +175,27 @@ export class Game {
 
   handleAttack(type = 1) {
     if (!this.localPlayer || this.localPlayer.isDead) return;
-    if (this.localPlayer.attack(type)) {
-      this.wsManager.sendMessage({
-        type: "attack",
-        attackType: type,
-        position: this.localPlayer.position,
-        direction: this.localPlayer.direction,
-      });
-    }
+
+    // Garantir que o tipo está entre 1-3
+    type = Math.max(1, Math.min(3, type));
+
+    // Executar o ataque
+    this.localPlayer.attack(type);
+
+    // Enviar mensagem de ataque mesmo que o ataque não tenha sido bem-sucedido localmente
+    // Isso garante que outros jogadores vejam a animação
+    this.wsManager.sendMessage({
+      type: "attack",
+      attackType: type,
+      position: this.localPlayer.position,
+      direction: this.localPlayer.direction,
+    });
+
+    // Forçar uma atualização de estado logo após o ataque
+    this.sendPlayerUpdate(true);
+
+    // Agendar outra atualização após o tempo suficiente para sincronizar o fim do ataque
+    setTimeout(() => this.sendPlayerUpdate(true), 300);
   }
 
   updatePlayers(delta) {
@@ -243,7 +256,24 @@ export class Game {
     if (player && !player.isLocalPlayer) {
       if (data.position) player.position = data.position;
       if (data.direction) player.direction = data.direction;
-      player.attack(data.attackType || 1);
+
+      // Forçar update da posição do container antes de executar o ataque
+      player.container.position.set(player.position.x, player.position.y);
+
+      // Configurar a caixa de ataque na direção correta
+      if (player.attackBox) {
+        player.attackBox.position.set(player.direction === 1 ? 30 : -110, 0);
+      }
+
+      // Executar o ataque com o tipo correto
+      const attackType = data.attackType || 1;
+
+      // Garantir que o ataque seja realizado independente do cooldown
+      player.isAttacking = false;
+      player.attackCooldowns = { 1: 0, 2: 0, 3: 0 };
+
+      // Forçar o ataque
+      player.attack(attackType);
     }
   }
 

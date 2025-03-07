@@ -249,12 +249,44 @@ export class Player {
     );
     this.health = Math.max(0, this.health - finalDamage);
     this.updateHealthBar();
+    this.showDamageText(finalDamage);
     if (this.health === 0) {
       this.setState("dead");
       return true;
     }
     this.setState("hurt");
     return false;
+  }
+
+  showDamageText(damage) {
+    const damageText = new PIXI.Text(`-${damage}`, {
+      fontFamily: "Arial",
+      fontSize: 16,
+      fontWeight: "bold",
+      fill: 0xff0000,
+      stroke: 0xffffff,
+      strokeThickness: 4,
+      align: "center",
+    });
+
+    damageText.anchor.set(0.5, 0.5);
+    damageText.position.set(0, -50);
+    this.container.addChild(damageText);
+
+    let elapsed = 0;
+    const animate = (delta) => {
+      elapsed += delta;
+      damageText.position.y -= 1;
+      damageText.alpha = Math.max(0, 1 - elapsed / 60);
+
+      if (elapsed >= 60) {
+        PIXI.Ticker.shared.remove(animate);
+        this.container.removeChild(damageText);
+        damageText.destroy();
+      }
+    };
+
+    PIXI.Ticker.shared.add(animate);
   }
 
   jump() {
@@ -341,36 +373,62 @@ export class Player {
   }
 
   updateRemote(data) {
-    // Se o jogador respawnou, resetar completamente o estado e posição
     if (data.respawned) {
-      this.position = data.position;
-      this.velocity = data.velocity || { x: 0, y: 0 };
-      this.health = data.health;
+      this.position = data.position || { x: 100, y: 550 };
+      this.velocity = { x: 0, y: 0 };
+      this.health = this.maxHealth;
       this.isDead = false;
       this.isAttacking = false;
       this.isHurt = false;
+      this.attackCooldowns = { 1: 0, 2: 0, 3: 0 };
       this.grounded = true;
-      this.direction = data.direction || 1;
-      this.setState(data.state || "idle");
+      if (this.container) {
+        this.container.visible = true;
+        this.container.alpha = 1;
+        this.container.position.set(this.position.x, this.position.y);
+      }
+      this.setState("idle");
       this.updateHealthBar();
-      this.container.position.set(this.position.x, this.position.y);
       return;
     }
 
-    // Atualizações normais para jogadores remotos
     if (data.position) this.position = data.position;
     if (data.velocity) this.velocity = data.velocity;
     if (data.direction) this.direction = data.direction;
     if (data.health !== undefined) {
+      const oldHealth = this.health;
       this.health = data.health;
+
+      // Mostrar dano quando a saúde diminui
+      if (oldHealth > this.health) {
+        this.showDamageText(oldHealth - this.health);
+      }
+
       this.updateHealthBar();
       if (this.health === 0 && !this.isDead) this.setState("dead");
       else if (this.health > 0 && this.isDead) this.setState("idle");
     }
+
+    // Processar estados de animação
     if (data.state && data.state !== this.state) {
-      if (data.state === "attack") this.attack(data.attackType || 1);
-      else this.setState(data.state);
+      if (data.state === "attack") {
+        // Garantir que a caixa de ataque esteja na direção correta
+        if (this.attackBox) {
+          this.attackBox.position.set(this.direction === 1 ? 30 : -110, 0);
+        }
+
+        // Resetar cooldowns para permitir ataque imediato
+        this.attackCooldowns = { 1: 0, 2: 0, 3: 0 };
+        this.isAttacking = false;
+
+        // Executar o ataque com o tipo correto
+        this.attack(data.attackType || 1);
+      } else {
+        this.setState(data.state);
+      }
     }
+
+    // Atualizar posição do container
     this.container.position.set(this.position.x, this.position.y);
   }
 }
