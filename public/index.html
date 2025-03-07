@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sticker Fighter</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.2.4/dist/pixi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi-spine@4.0.4/dist/pixi-spine.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/howler@2.2.3/dist/howler.min.js"></script>
+  </head>
+  <body class="bg-gray-900 text-white h-screen overflow-hidden flex flex-col">
+    <div id="game-container" class="w-full h-full relative flex flex-col">
+      <!-- Tela inicial -->
+      <div
+        id="start-screen"
+        class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-20"
+      >
+        <h1 class="text-5xl font-bold text-yellow-400 mb-10">
+          Sticker Fighter
+        </h1>
+
+        <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
+          <div id="menu-main" class="flex flex-col space-y-4">
+            <button
+              id="create-room-btn"
+              class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition"
+            >
+              Criar Sala
+            </button>
+            <button
+              id="join-room-btn"
+              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition"
+            >
+              Entrar em Sala
+            </button>
+          </div>
+
+          <div id="menu-create" class="hidden flex flex-col space-y-4">
+            <h2 class="text-xl font-bold text-center mb-4">Criar Sala</h2>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium mb-2"
+                >Escolha seu Personagem</label
+              >
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="character-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai"
+                >
+                  <img
+                    src="assets/sprites/Samurai/Idle.png"
+                    alt="Samurai"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Samurai</p>
+                </div>
+                <div
+                  class="character-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai_Archer"
+                >
+                  <img
+                    src="assets/sprites/Samurai_Archer/Idle.png"
+                    alt="Samurai Archer"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Arqueiro</p>
+                </div>
+                <div
+                  class="character-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai_Commander"
+                >
+                  <img
+                    src="assets/sprites/Samurai_Commander/Idle.png"
+                    alt="Samurai Commander"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Comandante</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium mb-2"
+                >Escolha o Mapa</label
+              >
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="map-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-map="Castle"
+                >
+                  <img
+                    src="assets/backgrounds/Castle/terrace.png"
+                    alt="Castle"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Castelo</p>
+                </div>
+                <div
+                  class="map-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-map="Throne"
+                >
+                  <img
+                    src="assets/backgrounds/Throne/throne.png"
+                    alt="Throne"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Sala do Trono</p>
+                </div>
+                <div
+                  class="map-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-map="Dead_Forest"
+                >
+                  <img
+                    src="assets/backgrounds/Dead_Forest/dead_forest.png"
+                    alt="Dead Forest"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Floresta Morta</p>
+                </div>
+                <div
+                  class="map-option cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-map="Castle_Entry"
+                >
+                  <img
+                    src="assets/backgrounds/Castle_Entry/castle.png"
+                    alt="Castle Entry"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Entrada</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              id="create-confirm-btn"
+              class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition"
+            >
+              Confirmar
+            </button>
+            <button
+              id="create-back-btn"
+              class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition"
+            >
+              Voltar
+            </button>
+          </div>
+
+          <div id="menu-join" class="hidden flex flex-col space-y-4">
+            <h2 class="text-xl font-bold text-center mb-4">Entrar em Sala</h2>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium mb-2"
+                >Código da Sala</label
+              >
+              <input
+                id="room-code-input"
+                type="text"
+                class="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                placeholder="Digite o código"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium mb-2"
+                >Escolha seu Personagem</label
+              >
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="character-option-join cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai"
+                >
+                  <img
+                    src="assets/sprites/Samurai/Idle.png"
+                    alt="Samurai"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Samurai</p>
+                </div>
+                <div
+                  class="character-option-join cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai_Archer"
+                >
+                  <img
+                    src="assets/sprites/Samurai_Archer/Idle.png"
+                    alt="Samurai Archer"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Arqueiro</p>
+                </div>
+                <div
+                  class="character-option-join cursor-pointer p-2 rounded-lg border-2 border-transparent hover:border-yellow-400 transition"
+                  data-character="Samurai_Commander"
+                >
+                  <img
+                    src="assets/sprites/Samurai_Commander/Idle.png"
+                    alt="Samurai Commander"
+                    class="w-full h-auto rounded"
+                  />
+                  <p class="text-center mt-1">Comandante</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              id="join-confirm-btn"
+              class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition"
+            >
+              Confirmar
+            </button>
+            <button
+              id="join-back-btn"
+              class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition"
+            >
+              Voltar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de sala de espera -->
+      <div
+        id="waiting-room"
+        class="absolute inset-0 hidden flex-col items-center justify-center bg-gray-900 z-20"
+      >
+        <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h2 class="text-2xl font-bold text-center mb-4">Sala de Espera</h2>
+          <div class="mb-4 text-center">
+            <p>
+              Código da Sala:
+              <span
+                id="room-id-display"
+                class="font-bold text-yellow-400"
+              ></span>
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="font-medium mb-2">Jogadores:</h3>
+            <div
+              id="players-list"
+              class="bg-gray-700 rounded-lg p-2 min-h-[100px]"
+            >
+              <!-- Lista de jogadores será adicionada dinamicamente -->
+            </div>
+          </div>
+
+          <div class="mb-4 text-center">
+            <p>
+              Mapa:
+              <span
+                id="map-name-display"
+                class="font-bold text-blue-400"
+              ></span>
+            </p>
+          </div>
+
+          <div id="host-controls" class="flex justify-center mt-6">
+            <button
+              id="start-game-btn"
+              class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition"
+            >
+              Iniciar Jogo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas do jogo -->
+      <canvas id="game-canvas" class="w-full h-full"></canvas>
+
+      <!-- HUD -->
+      <div id="game-hud" class="absolute inset-x-0 top-0 p-4 hidden">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <div class="w-48 h-6 bg-gray-800 rounded-full overflow-hidden">
+              <div
+                id="player-health-bar"
+                class="h-full bg-gradient-to-r from-red-600 to-red-400"
+                style="width: 100%"
+              ></div>
+            </div>
+            <span id="player-health-text" class="text-white font-bold"
+              >100/100</span
+            >
+          </div>
+
+          <div class="bg-gray-800 bg-opacity-70 py-1 px-4 rounded-lg">
+            <span class="text-yellow-400 font-bold" id="timer-display"
+              >02:00</span
+            >
+          </div>
+
+          <div class="flex space-x-4">
+            <div
+              id="score-display"
+              class="bg-gray-800 bg-opacity-70 py-1 px-4 rounded-lg"
+            >
+              <span class="text-white font-bold"
+                >Score: <span id="player-score">0</span></span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Attack Cooldown Indicators -->
+        <div class="absolute right-4 bottom-4 flex space-x-3">
+          <div class="attack-cooldown-container">
+            <div
+              id="attack-cooldown-1"
+              class="attack-cooldown-indicator"
+              data-key="J"
+            >
+              <div class="cooldown-overlay"></div>
+              <span class="cooldown-key">J</span>
+            </div>
+            <span class="cooldown-label">Ataque Leve</span>
+          </div>
+
+          <div class="attack-cooldown-container">
+            <div
+              id="attack-cooldown-2"
+              class="attack-cooldown-indicator"
+              data-key="K"
+            >
+              <div class="cooldown-overlay"></div>
+              <span class="cooldown-key">K</span>
+            </div>
+            <span class="cooldown-label">Ataque Médio</span>
+          </div>
+
+          <div class="attack-cooldown-container">
+            <div
+              id="attack-cooldown-3"
+              class="attack-cooldown-indicator"
+              data-key="L"
+            >
+              <div class="cooldown-overlay"></div>
+              <span class="cooldown-key">L</span>
+            </div>
+            <span class="cooldown-label">Ataque Forte</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de vitória/derrota -->
+      <div
+        id="end-screen"
+        class="absolute inset-0 hidden flex-col items-center justify-center bg-gray-900 bg-opacity-90 z-20"
+      >
+        <div
+          class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full text-center"
+        >
+          <h2 id="result-title" class="text-3xl font-bold mb-6">
+            Fim de Jogo!
+          </h2>
+
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4">Pontuações:</h3>
+            <div id="end-scores" class="bg-gray-700 rounded-lg p-4">
+              <!-- Pontuações serão adicionadas dinamicamente -->
+            </div>
+          </div>
+
+          <button
+            id="play-again-btn"
+            class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition"
+          >
+            Jogar Novamente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carregar módulos JavaScript -->
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
